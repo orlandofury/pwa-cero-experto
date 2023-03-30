@@ -1,44 +1,135 @@
+//const CACHE_NAME = 'cache-1';
+const CACHE_STATIC_NAME = 'static-v2';
+const CACHE_DYNAMIC_NAME = 'dynamic-v1';
+const CACHE_INMUTABLE_NAME = 'inmutable-v1';
+
+const CACHE_DYNAMIC_LIMIT = 50;
+
+function limpiarCache(cacheName,numeroItems){
+    caches.open(cacheName)
+          .then( cache=> {
+            return cache.keys()
+                .then( keys => {
+                    if(keys.length>numeroItems){
+                        cache.delete(keys[0])
+                             .then(limpiarCache(cacheName,numeroItems));
+                    }
+                })
+          })
+}
+
+self.addEventListener('install',e=>{
+
+    const cacheProm = caches.open(CACHE_STATIC_NAME).then(
+        cache => {
+           return cache.addAll([
+                '/',
+                '/index.html',
+                '/css/style.css',
+                '/img/main.jpg',
+                '/js/app.js',
+                '/img/no-img.jpg'
+            ])
+        }
+    );
+    const cacheInmutable = caches.open(CACHE_INMUTABLE_NAME).then(
+        cache => cache.add(
+            'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css'
+        )
+    );
+    e.waitUntil(Promise.all([cacheProm,cacheInmutable]));
+});
+
+self.addEventListener('fetch', e=>{
+
+    //5 - Cache & Network Race
+    const respuesta = new Promise( (resolve,reject) =>{
+        let rechazada = false;
+        
+        const falloUnaVez = () =>{
+            if(rechazada){
+                //no existe ni el cache ni una fetch valida
+
+                if(/\.(png|jpg)$/i.test(e.request.url)){
+                    resolve(caches.match('/img/no-img.jpg'));
+                } else {
+                    reject('No se encontro respesta');
+                }
+
+            }else{
+                rechazada = true;
+            }
+        }
+
+        fetch(e.request).then( res => {
+            res.ok ? resolve(res) : falloUnaVez();
+        }).catch(falloUnaVez);
+
+        caches.match(e.request).then(res => {
+            res ? resolve(res) : falloUnaVez();
+        }).catch(falloUnaVez);
+    })
 
 
+    e.respondWith(respuesta);
 
-self.addEventListener('fetch', event => {
-    // const offlineResp = new Response(`
-    //     Bienvenido a la Pagina web.
-    //     test
-    //     Oops! al parecer no tienes internet verificalo para usar la pagina.
-    // `);
+    //4 - Cache with network update
+    //  rendimiento critico
+    //Siempre un paso atras o una version atras
+    // if(e.request.url.includes('bootstrap')){
+    //     e.respondWith(caches.match(e.request));
+    // }
+    // const respuesta = caches.open(CACHE_STATIC_NAME).then( cache =>{
+    //     fetch(e.request).then( newRes => {
+    //         cache.put(e.request,newRes);
+    //     });
 
-//     const offlineResp = new Response(`
-//     <!DOCTYPE html>
-// <html lang="en">
-// <head>
-//     <meta charset="UTF-8">
-//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-//     <title>Mi PWA</title>
+    //     return cache.match(e.request);
+    // });
 
-// </head>
-// <body class="container p-3">
-// <img src="img/main.jpg" alt="Vías del tren" class="img-fluid">
-    
-// <h1>Bienvenido Offline mode</h1>
-// <hr>
+    // e.respondWith(respuesta);
 
-// <p>
-//     Las PWAs son el siguiente paso a las páginas y aplicaciones web.
-// </p>
-// <p>
-//     Cargan sumamente rápido y no necesitan conexión a internet para trabajar
-// </p>
 
-// </body>
-// </html>
-//     `,{
-//         headers:{
-//             'Content-type':'text/html'
-//         }
-//     }) ;
-    const offlineResp = fetch('pages/offline.htmml');
-    const resp = fetch(event.request).catch(() => offlineResp);
-    event.respondWith(resp);
+    //3 - Network with cache fallback
+    // const respuesta = fetch(e.request).then( res =>{
+        
+    //     if(!res) return caches.match(e.request);
+
+    //     //console.log('Fetch',res);
+
+    //     caches.open(CACHE_DYNAMIC_NAME)
+    //           .then( cache => {
+    //             cache.put(e.request,res);
+    //             limpiarCache(CACHE_DYNAMIC_NAME,CACHE_DYNAMIC_LIMIT);
+    //           });
+        
+    //     return res.clone();         
+    // }).catch( err =>{
+    //     return caches.match(e.request);
+    // });
+    // e.respondWith(respuesta);
+
+
+    //2 - Cache with Network fallback
+    // const respuesta = caches.match(e.request)
+    //       .then(res => {
+    //         if(res) return res;
+
+    //         //No existe el archivo
+    //         //gengo que ir a la web
+    //         console.log('No existe',e.request.url);
+
+    //         return fetch(e.request).then(newResp => {
+    //             caches.open(CACHE_DYNAMIC_NAME)
+    //             .then(cache =>{
+    //                 cache.put(e.request, newResp);
+    //                 limpiarCache(CACHE_DYNAMIC_NAME,50);
+    //             })
+    //             return newResp.clone();
+    //         });
+    //       })
+    // e.respondWith(respuesta);
+
+    //1 - CACHE only
+    //e.respondWith(caches.match(e.request))
 });
