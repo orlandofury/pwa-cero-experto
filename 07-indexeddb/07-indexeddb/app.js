@@ -1,0 +1,6 @@
+
+// indexedDB: Reforzamiento
+
+
+
+
