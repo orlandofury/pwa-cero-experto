@@ -44,16 +44,21 @@ function actualizaCacheStatico( staticCache, req, APP_SHELL_INMUTABLE ) {
 function manejoApiMensajes( cacheName, req){
 
     if(req.clone().method === 'POST'){
-        //POSTEO DE UN NUEVO MENSAJE
-        req.clone().text().then( body => {
-            
-            //console.log(body);
-            const bodyObj = JSON.parse(body);
 
-            guardarMensaje(bodyObj);
-        })
-        //TODO: se debe guardar en indexDB
-        return fetch(req);
+        if(self.registration.sync){
+            //POSTEO DE UN NUEVO MENSAJE
+            return req.clone().text().then( body => {
+                
+                //console.log(body);
+                const bodyObj = JSON.parse(body);
+
+                return guardarMensaje(bodyObj);
+            });
+        }
+        else{
+            return fetch(req);
+        }
+        
     }
     else{
         
