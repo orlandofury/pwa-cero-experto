@@ -40,3 +40,38 @@ function actualizaCacheStatico( staticCache, req, APP_SHELL_INMUTABLE ) {
 
 }
 
+//Network with cache fallback/update
+function manejoApiMensajes( cacheName, req){
+
+    if(req.clone().method === 'POST'){
+        //POSTEO DE UN NUEVO MENSAJE
+        req.clone().text().then( body => {
+            
+            //console.log(body);
+            const bodyObj = JSON.parse(body);
+
+            guardarMensaje(bodyObj);
+        })
+        //TODO: se debe guardar en indexDB
+        return fetch(req);
+    }
+    else{
+        
+        return fetch(req).then( res => {
+
+            if(res.ok){
+                actualizaCacheDinamico(cacheName, req, res.clone());
+                return res.clone();
+            } else {
+                return caches.match(req);
+            }
+
+
+        }).catch( err => {
+            return caches.match(req);
+        })
+    }
+
+}
+
+

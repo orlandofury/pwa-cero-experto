@@ -26,7 +26,9 @@ router.post('/', function (req, res) {
     mensaje: req.body.mensaje,
     user: req.body.user
   }
+  
   mensajes.push(mensaje);
+  console.log(mensajes);
 
   res.json({
     ok:true,
