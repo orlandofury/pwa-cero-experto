@@ -21,7 +21,9 @@ const APP_SHELL = [
     'img/avatars/thor.jpg',
     'img/avatars/wolverine.jpg',
     'js/app.js',
-    'js/sw-utils.js'
+    'js/sw-utils.js',
+    'js/libs/plugins/mdtoast.min.css',
+    'js/libs/plugins/mdtoast.min.js'
 ];
 
 const APP_SHELL_INMUTABLE = [
@@ -115,8 +117,10 @@ self.addEventListener('sync', e=>{
 
     if(e.tag === 'nuevo-post'){
         //postear a DB cuando hay conexion
-        
-        //e.waitUntil( ??? )
+
+        const respuesta = postearMensajes();
+
+        e.waitUntil( respuesta )
     }
 
 })
