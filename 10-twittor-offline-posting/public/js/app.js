@@ -179,6 +179,7 @@ function isOnline(){
     if(navigator.onLine){
         //tenemos conexion
         //console.log('online');
+        //$. no funciona la version actual solo usa la funcion pura mdtoast easier!! :)
     mdtoast('Online',{
             interaction:true,
             interactionTimeout: 1000,
