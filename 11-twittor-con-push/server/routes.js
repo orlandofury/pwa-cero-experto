@@ -1,7 +1,7 @@
 // Routes.js - Módulo de rutas
-var express = require('express');
-var router = express.Router();
-
+const express = require('express');
+const router = express.Router();
+const push = require('./push.js')
 
 const mensajes = [
 
@@ -40,6 +40,25 @@ router.post('/', function (req, res) {
   });
 });
 
+//Almacenar la subscripcion de los dispositivos
+router.post('/subscribe', (req,res) => {
+  res.json('subscribe');
+})
+
+//Mandar key publico a los clientes para que el cliente lo pueda procesar
+//y luego mandarnos la subscripcion
+router.get('/key', (req,res) => {
+  const key = push.getKey();
+  res.json(key);
+})
+
+//Enviar notificacion PUSH a las personas 
+//que se nosotros queramos
+//Esto es para controlar el push desde el POSTMAN O THUNDERCLIENT
+//El PUSH se controla desde el backend server
+router.post('/push', (req,res) => {
+  res.json('key publico');
+})
 
 
 module.exports = router;
