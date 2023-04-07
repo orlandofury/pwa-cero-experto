@@ -226,6 +226,7 @@ window.addEventListener('offline', isOnline );
 isOnline();
 
 function verificaSubscripcion(activadas){
+    console.warn(activadas);
     if(activadas){
         btnActivadas.removeClass('oculto');
         btnDesactivadas.addClass('oculto');
@@ -294,8 +295,17 @@ btnDesactivadas.on('click',function(){
         })
         .then( res => res.toJSON())
         .then( subscripcion => {
-            console.log(subscripcion);
-            verificaSubscripcion(subscripcion);
+            //console.warn(subscripcion);
+            fetch('api/subscribe',{
+                method:'POST',
+                headers:{ 
+                    'Content-Type':'application/json',
+                },
+                body:JSON.stringify(subscripcion)
+            })
+            .then(verificaSubscripcion)
+            .catch(console.log);
+            
         })
     })
 })

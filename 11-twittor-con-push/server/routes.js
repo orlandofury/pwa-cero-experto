@@ -42,6 +42,13 @@ router.post('/', function (req, res) {
 
 //Almacenar la subscripcion de los dispositivos
 router.post('/subscribe', (req,res) => {
+  const subscripcion = req.body;
+
+  console.log(subscripcion);
+
+  push.addSubscription(subscripcion);
+
+
   res.json('subscribe');
 })
 
