@@ -226,7 +226,6 @@ window.addEventListener('offline', isOnline );
 isOnline();
 
 function verificaSubscripcion(activadas){
-    console.warn(activadas);
     if(activadas){
         btnActivadas.removeClass('oculto');
         btnDesactivadas.addClass('oculto');
@@ -304,8 +303,19 @@ btnDesactivadas.on('click',function(){
                 body:JSON.stringify(subscripcion)
             })
             .then(verificaSubscripcion)
-            .catch(console.log);
+            .catch(cancelarSubscripcion);
             
         })
     })
+});
+
+function cancelarSubscripcion(){
+    swReg.pushManager.getSubscription().then( subs => {
+        subs.unsubscribe().then(() => verificaSubscripcion(false));
+    });
+}
+
+
+btnActivadas.on('click',function(){
+    cancelarSubscripcion();
 })

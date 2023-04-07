@@ -132,3 +132,62 @@ self.addEventListener('sync', e => {
 
 
 });
+
+self.addEventListener('push', e => {
+    //console.log(e);
+    const data = JSON.parse(e.data.text());
+    console.log(data);
+    const title = data.titulo;
+    const options = {
+        body: data.cuerpo,
+        //icon: 'img/icons/icon-72x72.png'
+        icon: `img/avatars/${data.usuario}.jpg`,
+        badge: 'img/favicon.ico',
+        image: 'https://www.retrozap.com/wp-content/uploads/2018/06/Spider-Man-Homecoming_183-AvengersHQ.jpg',
+        vibrate: [500,110,500,110,450,110,200,110,170,40,450,110,200,110,170,40,500],
+        openUrl: '/',
+        data:{
+            //url:'https://google.com',
+            url:'/',
+            id:data.usuario
+        },
+        actions:[
+            {
+                action:'thor-action',
+                title:'Thor',
+                icon:'img/avatar/thor.jpg'
+            },
+            {
+                action:'ironman-action',
+                title:'Ironman',
+                icon:'img/avatar/ironman.jpg'
+            }
+        ]
+    };
+
+    e.waitUntil(self.registration.showNotification(title,options));
+});
+
+self.addEventListener('notificationclose', e => {
+    console.log('Notificacion cerrada', e);
+})
+self.addEventListener('notificationclick', e => {
+    const notificacion = e.notification;
+    const accion = e.action;
+
+    console.log({notificacion,accion});
+
+    const respuesta = clients.matchAll()
+    .then( clientes => {
+        let cliente = clientes.find(c=> c.visibilityState === 'visible');
+        if(cliente !== undefined){
+            cliente.navigate(notificacion.data.url);
+            cliente.focus();
+        } else{
+            clients.openWindow(notificacion.data.url)
+        }
+        return notificacion.close();
+    })
+
+    e.waitUntil(respuesta);
+})

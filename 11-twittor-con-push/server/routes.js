@@ -64,7 +64,13 @@ router.get('/key', (req,res) => {
 //Esto es para controlar el push desde el POSTMAN O THUNDERCLIENT
 //El PUSH se controla desde el backend server
 router.post('/push', (req,res) => {
-  res.json('key publico');
+  const post = {
+    titulo: req.body.titulo,
+    cuerpo: req.body.cuerpo,
+    usuario: req.body.usuario
+  }
+  push.sendPush(post);
+  res.json(post);
 })
 
 
