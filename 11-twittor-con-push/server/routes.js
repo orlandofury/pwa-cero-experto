@@ -49,7 +49,7 @@ router.post('/subscribe', (req,res) => {
 //y luego mandarnos la subscripcion
 router.get('/key', (req,res) => {
   const key = push.getKey();
-  res.json(key);
+  res.send(key);
 })
 
 //Enviar notificacion PUSH a las personas 

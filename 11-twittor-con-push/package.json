@@ -14,7 +14,8 @@
     "dependencies": {
         "body-parser": "^1.18.3",
         "express": "^4.16.3",
-        "web-push":"^3.3.3"
+        "urlsafe-base64": "^1.0.0",
+        "web-push": "^3.3.3"
     },
     "devDependencies": {
         "nodemon": "^1.18.4"
